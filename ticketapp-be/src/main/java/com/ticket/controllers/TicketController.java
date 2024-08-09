@@ -2,7 +2,9 @@ package com.ticket.controllers;
 
 import com.ticket.entities.Ticket;
 import com.ticket.services.TicketService;
+import com.ticket.utilities.QRCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -57,6 +59,23 @@ public class TicketController {
             return new ResponseEntity<>(ticketService.getAllTickets(), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Error fetching tickets: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/{ticketId}/qrcode")
+    public ResponseEntity<byte[]> getQRCode(@PathVariable String ticketId) {
+        try {
+            // Here, you would typically retrieve ticket details from your database.
+            String qrCodeText = "Ticket ID: " + ticketId + "\nUser: John Doe\nEvent: Music Concert";
+
+            byte[] qrCodeImage = QRCodeGenerator.generateQRCodeImage(qrCodeText, 250, 250);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(HttpHeaders.CONTENT_TYPE, "image/png");
+            return new ResponseEntity<>(qrCodeImage, headers, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
